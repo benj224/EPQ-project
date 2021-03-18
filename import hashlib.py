@@ -1,7 +1,7 @@
 import hashlib
 import time
 
-
+#Properties of each Block
 class Block:
 
     def __init__(self, index, proof_no, prev_hash, data, timestamp=None):
@@ -24,7 +24,7 @@ class Block:
                                                self.prev_hash, self.data,
                                                self.timestamp)
 
-
+#Properties of the actual Blockchain
 class BlockChain:
 
     def __init__(self):
@@ -33,9 +33,11 @@ class BlockChain:
         self.nodes = set()
         self.construct_genesis()
 
+    #Creates the first Block in the Blockchain
     def construct_genesis(self):
         self.construct_block(proof_no=0, prev_hash=0)
 
+    #Constructor for each additional Block
     def construct_block(self, proof_no, prev_hash):
         block = Block(
             index=len(self.chain),
@@ -47,6 +49,7 @@ class BlockChain:
         self.chain.append(block)
         return block
 
+    #Makes sure each Block contains the previous Blocks' Hash
     @staticmethod
     def check_validity(block, prev_block):
         if prev_block.index + 1 != block.index:
@@ -64,6 +67,7 @@ class BlockChain:
 
         return True
 
+    #The data sent with each transaction
     def new_data(self, sender, recipient, quantity):
         self.current_data.append({
             'sender': sender,
@@ -72,6 +76,7 @@ class BlockChain:
         })
         return True
 
+    #Makes the computer work to create a new block 
     @staticmethod
     def proof_of_work(last_proof):
         '''this simple algorithm identifies a number f' such that hash(ff') contain 4 leading zeroes
