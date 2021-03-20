@@ -1,5 +1,9 @@
+import datetime
+from Crypto.PublicKey import RSA
+
+
 class BlockChain():
-    def __init__():
+    def __init__(self):
         self.chain = [self.addGenesisBlock()]
         self.pendingTransactions = []
         self.dificulty = 2
@@ -54,21 +58,21 @@ class BlockChain():
                 self.chain.append(newBlock)
             print("MIning Transaction success")
 
-            payMiner = Transaction("Miner Rewards", miner, self.minerRewards)
+            payMiner = Transaction("Miner Rewards", miner, self.miningReward)
             self.pendingTransactions = [payMiner]
         return True
 
     ##function for adding a transaction
 
     ##function to get last block
-    def getLastBlock():
+    def getLastBlock(self):
         return self.chain[-1]
 
     ##function to add genesisBlock
     def addGenesisBlock(self):
         nullTransaction = []
         nullTransaction.append(Transaction("none", "none", 0))
-        genesis = Block()
+        genesis = Block(nullTransaction, datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), 0)
         genesis.prev = "none"
         return genesis
 
@@ -86,12 +90,17 @@ class BlockChain():
                 print("error4")
                 return False
 
-            if block2.prev != b1.hash:
+            if block2.prev != block1.hash:
                 print("error5")
                 return False
         return True
 
     ##function to generate RSA keys
+    def generateKeys(self):
+        key = RSA.generate(2048)
+        privateKey = key.export_key()
+        fileOut = open("Private.pem", "wb")
+        fileOut.write(privateKey)
 
     ##function to turn blocks to json
 
@@ -102,21 +111,21 @@ class BlockChain():
 
 
 class Block (object):
-    def __init__(self, transactions, time, index)
-    self.index = index
-    self.transactions = transactions
-    self.time = time
-    self.prev = ""
-    self.nonse = 0
-    self.hash = "" ##self.calculate hash
+    def __init__(self, transactions, time, index):
+        self.index = index
+        self.transactions = transactions
+        self.time = time
+        self.prev = ""
+        self.nonse = 0
+        self.hash = "" ##self.calculate hash
 
-    ##function to calculate the hash
+        ##function to calculate the hash
 
-    ##function to mine block
+        ##function to mine block
 
-    ##function for validating transactions
+        ##function for validating transactions
 
-    ##function for json encoding self
+        ##function for json encoding self
 
 
 class Transaction (object):
