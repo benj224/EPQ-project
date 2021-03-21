@@ -1,5 +1,7 @@
 import datetime
 from Crypto.PublicKey import RSA
+import hashlib
+import json
 
 
 class BlockChain():
@@ -102,11 +104,76 @@ class BlockChain():
         fileOut = open("Private.pem", "wb")
         fileOut.write(privateKey)
 
+        publicKey = key.publickey().export_key()
+        fileOut = open("Reciever.pem", "wb")
+        fileOut.write(publicKey)
+
+        print(publicKey.decode("ASCII"))
+        return key.publickey().export_key().decode("ASCII")
+
     ##function to turn blocks to json
+    def encodeChainJSON(self):
+        JSONBlockArray = []
+        for block in self.chain:
+            blockJSON = {}
+            blockJSON["hash"] = block.hash
+            blockJSON['index'] = block.index
+            blockJSON['prev'] = block.prev
+            blockJSON['time'] = block.time
+            blockJSON['nonse'] = block.nonse
+
+            transactionsJSON = []
+            transactionJSON = {}
+            for transaction in block.transactions:
+                transactionJSON['time'] = transaction.time
+                transactionJSON['sender'] = transaction.sender
+                transactionJSON['reciever'] = transaction.reciever
+                transactionJSON['ammount'] = transaction.ammount
+                transactionJSON['hash'] = transaction.hash
+                transactionsJSON.append(transactionJSON)
+
+            blockJSON["transactions"] = transactionsJSON
+            JSONBlockArray.append(blockJSON)
+
+            return JSONBlockArray
+
 
     ##function to get blocks from json
+    def chainJSONdecode(self, chainJSON):
+        chain=[]
+        for blockJSON in chainJSON:
+
+            tArr = []
+            for tJSON in blockJSON['transactions']:
+                transaction = Transaction(tJSON['sender'], tJSON['reciever'], tJSON['ammount'])
+                transaction.time = tJSON['time']
+                transaction.hash = tJSON['hash']
+                tArr.append(transaction)
+
+
+            block = Block(tArr, blockJSON['time'], blockJSON['index'])
+            block.hash = blockJSON['hash']
+            block.prev =blockJSON['prev']
+            block.nonse = blockJSON['nonse']
+
+            chain.append(block)
+            return chain
 
     ##function to get balance
+    def getBalance(self, person):
+        balance = 0 
+        for i in range(1, len(self.chain)):
+            block = self.chain[i]
+            try:
+                for j in range(0, len(block.transactions)):
+                    transaction = block.transactions[j]
+                    if(transaction.sender == person):
+                        balance -= transaction.amt
+                    if(transaction.reciever == person):
+                        balance += transaction.amt
+            except AttributeError:
+                print("no transaction")
+        return balance + 100 ## might chance this
 
 
 
@@ -117,15 +184,42 @@ class Block (object):
         self.time = time
         self.prev = ""
         self.nonse = 0
-        self.hash = "" ##self.calculate hash
+        self.hash = self.calculateHash() ##self.calculate hash
 
-        ##function to calculate the hash
+        ##function to calculate the hash#
+    def calculateHash(self):
+        transactionsToHash = ""
+        for transaction in self.transactions:
+            transactionsToHash += transaction.hash
+        hashString = str(self.time) + transactionsToHash + self.prev + str(self.nonse)
+        hashEncoded = json.dumps(hashString, sort_keys = True).endcode()
+        return hashlib.sha256(hashEncoded).hexdigest() ##swap out here for better hash function
 
         ##function to mine block
+    def mineBlock(self, difficulty):
+        ary = []
+        for i in range(difficulty):
+            ary.append(i)
+        aryStr = map(str, ary)
+        hashPuzzle = "".join(aryStr)
+        while self.hash[0:difficulty] != hashPuzzle:
+            self.nonse += 1
+            self.hash = self.calculateHash()
+        print("block ", self.hash," mined")
+        return True
+
 
         ##function for validating transactions
+    def hasValidTransactions(self):
+        for i in range(0, len(self.transactions)):
+            transaction = self.transactions[i]
+            if not transaction.isValidTransaction():
+                return False
+            return True
 
         ##function for json encoding self
+    def JSONencode(self):
+        return jsonpickle.encode(self)
 
 
 class Transaction (object):
@@ -134,11 +228,40 @@ class Transaction (object):
         self.reciever = reciever
         self.ammount = ammount
         self.time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        self.hash = self.calculateHash
+        self.signature = ""
 
 
-    ##function to calculate hash
+    ##function to calculate hash 
+    def calculateHash(self):
+        hashString = self.sender + self.reciever + str(self.ammount) + str(self.time)
+        hashEncoded = json.dumps(hashString, sort_keys = True).encode()
+        return hashlib.sha256(hashEncoded).hexdigest()
 
     ##function to check validity
+    def isValidTransaction(self):
+        if self.hash != self.calculateHash():
+            return False
+        if self.sender == self.reciever:
+            return False
+        if self.sender == "Miner Rewards":
+            return True
+        if not self.signature or len(self.signature) == 0:
+            print("No Signature")
+            return False
+        return True
 
     ##function to sign transaction
+    def signTransaction(self, key, sender):
+        if(self.hash != self.calculateHash):
+            print("transaction error tampered")
+            return False
+
+        if(str(key.publickey().export_key()) != str(senderKey.publickey().export_key())):
+            print("transaction to be signed form a nother wallet")
+            return False
+
+        self.signature = key.sign(self.hash, "") ##might need to base 64 encode
+        return true
+
 
