@@ -2,6 +2,7 @@ import datetime
 from Crypto.PublicKey import RSA
 import hashlib
 import json
+import jsonpickle
 
 
 class BlockChain():
@@ -252,7 +253,7 @@ class Transaction (object):
         return True
 
     ##function to sign transaction
-    def signTransaction(self, key, sender):
+    def signTransaction(self, key, senderKey):
         if(self.hash != self.calculateHash):
             print("transaction error tampered")
             return False
@@ -262,6 +263,6 @@ class Transaction (object):
             return False
 
         self.signature = key.sign(self.hash, "") ##might need to base 64 encode
-        return true
+        return True
 
 
