@@ -8,6 +8,8 @@ pygame.font.init()
 myfont = pygame.font.SysFont('Comic Sans MS', 30)
 surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
+clock = pygame.time.Clock()
+
 running = True
 
 info = pygame.display.Info()
@@ -75,7 +77,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    pygame.time.Clock.tick(1) ##### fix this
+
+    clock.tick(1) 
 
     randNo = random.randint(0, 1000000)
     testHash = hashlib.sha256(bytes(randNo)).hexdigest()
@@ -96,7 +99,10 @@ while running:
             elif i == 3 and j == 0 and hexToDec(testHashList[3]) == 4:
                 color = (0, 255, 0)
             else:
-                color = (hexToDec(testHashList[8*i+j])*16, 0, 0)
+                print(hexToDec(testHashList[8*i+j])*16)
+                print(255-(hexToDec(testHashList[8*i+j])*16))
+                num = hexToDec(testHashList[8*i+j])*16
+                color = (num, 0, 255-num)
             pygame.draw.rect(surface, color, pygame.Rect(placementGrid[i][j][0], placementGrid[i][j][1], 60, 60))
 
     
