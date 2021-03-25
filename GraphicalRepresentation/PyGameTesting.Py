@@ -1,7 +1,11 @@
 import pygame
+import random
+import hashlib
 
 pygame.init()
+pygame.font.init()
 
+myfont = pygame.font.SysFont('Comic Sans MS', 30)
 surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 running = True
@@ -71,10 +75,14 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    testHash = "12d416bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    pygame.time.Clock.tick(1) ##### fix this
+
+    randNo = random.randint(0, 1000000)
+    testHash = hashlib.sha256(bytes(randNo)).hexdigest()
     testHashList = []
     for n in range(len(testHash)):
         testHashList.append(testHash[n])
+
 
     surface.fill((255, 255, 255))
     for i in range(8):
