@@ -1,6 +1,7 @@
 import pygame
 import random
 import hashlib
+import string
 
 pygame.init()
 pygame.font.init()
@@ -80,8 +81,9 @@ while running:
 
     clock.tick(1) 
 
-    randNo = random.randint(0, 1000000)
-    testHash = hashlib.sha256(bytes(randNo)).hexdigest()
+    generatedString = "".join(random.choice(string.ascii_lowercase) for i in range(10))
+
+    testHash = hashlib.sha256(generatedString.encode()).hexdigest()
     testHashList = []
     for n in range(len(testHash)):
         testHashList.append(testHash[n])
