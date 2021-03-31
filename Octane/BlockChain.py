@@ -24,11 +24,11 @@ class BlockChain():
 
         currentLength = len(self.chain)
         for node in neighborNodes:
-            ##return the nodes current chain
+            response = requests.get(f"http://{node}/chain")
 
-            if True: #change to request return status
-                length = 0 ##length of neighbor nodes chain
-                chain = None ##neighbors chain
+            if response.status_code == 200: #change to request return status
+                length = response.json()["length"] ##length of neighbor nodes chain
+                chain = response.json()["chain"] ##neighbors chain
 
                 if True:  ##Length of neighbors chain bigger that current chain and thier chain is valid
                     currentLength = length
@@ -36,7 +36,7 @@ class BlockChain():
                     chainUpdated = True
         
         if chainUpdated:
-            self.chain = None ##decode the returned jason of the newest chain
+            self.chain = self.chainJSONdecode(updatedChain)
             return True
         return False
 
