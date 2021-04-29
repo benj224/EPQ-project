@@ -1,5 +1,6 @@
-import datetime
-from Crypto.PublicKey import RSA
+from datetime import datetime
+#from Crypto.PublicKey import RSA ##need to update to pycryptodome
+##from pycryptodome.publicKey import RSA
 import hashlib
 import json
 import jsonpickle
@@ -237,7 +238,7 @@ class Transaction (object):
     def calculateHash(self):
         hashString = self.sender + self.reciever + str(self.ammount) + str(self.time)
         hashEncoded = json.dumps(hashString, sort_keys = True).encode()
-        return hashlib.sha256(hashEncoded).hexdigest()
+        return str(hashlib.sha256(hashEncoded).hexdigest())
 
     ##function to check validity
     def isValidTransaction(self):
