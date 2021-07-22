@@ -1,5 +1,21 @@
 [
  {
-  "Hash": "tlGW0iJyyIxfYgkTuiMCUHVKu83pqgHttflJyMdzfZA="
+  "timestamp": "2021-07-22T20:51:50.7169585+01:00",
+  "transactions": [
+   {
+    "Timestamp": "2021-07-22T20:51:50.7169585+01:00",
+    "Sender": "Genesis",
+    "Recipient": "Reciever",
+    "Ammount": 183698258
+   },
+   {
+    "Timestamp": "2021-07-22T20:51:50.7169585+01:00",
+    "Sender": "Genesis",
+    "Recipient": "Reciever2",
+    "Ammount": 100
+   }
+  ],
+  "prev_hash": "Z2VuZXNpcw==",
+  "hash": "thKedrqEbuTYArcB9jI/hQhGNo59OP5xrUDtOFQ1TPY="
  }
 ]

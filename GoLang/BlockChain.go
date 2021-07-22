@@ -10,29 +10,29 @@ import (
 )
 
 type Block struct {
-	timestamp    time.Time
-	transactions []Transaction
-	prevHash     []byte
-	Hash         []byte
+	Timestamp    time.Time     `json:"timestamp"`
+	Transactions []Transaction `json:"transactions"`
+	PrevHash     []byte        `json:"prev_hash"`
+	Hash         []byte        `json:"hash"`
 }
 
 type BlockChain struct {
-	blockChain []Block
+	BlockChain []Block
 }
 
 type Transaction struct {
-	timestamp time.Time
-	sender    string
-	recipient string
-	ammount   float64
+	Timestamp time.Time
+	Sender    string
+	Recipient string
+	Ammount   float64
 }
 
 func NewBlock(transactions []Transaction, prevhash []byte) Block {
 	currentTime := time.Now()
 	return Block{
-		timestamp:    currentTime,
-		transactions: transactions,
-		prevHash:     prevhash,
+		Timestamp:    currentTime,
+		Transactions: transactions,
+		PrevHash:     prevhash,
 		Hash:         NewHash(currentTime, transactions, prevhash),
 	}
 }
@@ -47,21 +47,21 @@ func NewHash(time time.Time, transactions []Transaction, prevHash []byte) []byte
 }
 
 func printBlockInformation(block *Block) {
-	fmt.Printf("\ttime: %s\n", block.timestamp.String())
-	fmt.Printf("\tprevHash: %x\n", block.prevHash)
+	fmt.Printf("\ttime: %s\n", block.Timestamp.String())
+	fmt.Printf("\tprevHash: %x\n", block.PrevHash)
 	fmt.Printf("\thash: %x\n", block.Hash)
 	printTransactions(block)
 }
 
 func printTransactions(block *Block) {
 	fmt.Println("\tTransactions:")
-	for i, transaction := range block.transactions {
-		fmt.Printf("\t\t%v: %s sent %s %v\n", i, transaction.sender, transaction.recipient, transaction.ammount)
+	for i, transaction := range block.Transactions {
+		fmt.Printf("\t\t%v: %s sent %s %v\n", i, transaction.Sender, transaction.Recipient, transaction.Ammount)
 	}
 }
 
 func printBlockChain(chain *BlockChain) {
-	for _, block := range chain.blockChain {
+	for _, block := range chain.BlockChain {
 		printBlockInformation(&block)
 	}
 }
@@ -86,7 +86,7 @@ func main() {
 	genesisBlock := NewBlock(genesisTransactions, []byte("genesis"))
 
 	blockChain := BlockChain{
-		blockChain: []Block{genesisBlock},
+		BlockChain: []Block{genesisBlock},
 	}
 
 	BlockChainToJSON(blockChain)
@@ -95,10 +95,13 @@ func main() {
 }
 
 func BlockChainToJSON(chain BlockChain) {
-	file, err := json.MarshalIndent(chain.blockChain, "", " ")
+	file, err := json.MarshalIndent(chain.BlockChain, "", " ")
 	if err != nil {
 		log.Println(err)
 	}
 	fmt.Println(string(file))
-	_ = ioutil.WriteFile("test.json", file, 0644)
+	err = ioutil.WriteFile("test.json", file, 0644)
+	if err != nil {
+		log.Println(err)
+	}
 }
