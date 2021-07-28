@@ -9,31 +9,40 @@ import (
 	"time"
 )
 
+//TODO:
+//Add a hash calculation function to transaction struct
+//Test block hashing and think about multiple nonce possibility
+//Look back at node.go when at home
+
 type Block struct {
-	timestamp    time.Time
-	transactions []Transaction
-	prevHash     []byte
+	Timestamp    time.Time
+	Transactions []Transaction
+	PrevHash     []byte
 	Hash         []byte
+	Nonce        int64
 }
 
 type BlockChain struct {
-	blockChain []Block
+	BlockChain []Block
 }
 
 type Transaction struct {
-	timestamp time.Time
-	sender    string
-	recipient string
-	ammount   float64
+	Timestamp time.Time
+	Sender    string
+	Recipient string
+	Ammount   float64
+	Hash      []byte
+	Signature []byte
 }
 
 func NewBlock(transactions []Transaction, prevhash []byte) Block {
 	currentTime := time.Now()
 	return Block{
-		timestamp:    currentTime,
-		transactions: transactions,
-		prevHash:     prevhash,
+		Timestamp:    currentTime,
+		Transactions: transactions,
+		PrevHash:     prevhash,
 		Hash:         NewHash(currentTime, transactions, prevhash),
+		Nonce:        0,
 	}
 }
 
@@ -46,24 +55,50 @@ func NewHash(time time.Time, transactions []Transaction, prevHash []byte) []byte
 	return hash[:]
 }
 
+func (block Block) CalculateHash() []byte {
+	input := append(block.PrevHash, block.Time.String()...)
+	for transaction := range block.Transactions {
+		input = append(input, string(rune(transaction))...)
+	}
+	hash := sha256.Sum256(input)
+	return hash[:]
+}
+
+func (b Block) MineBlock(difficulty int) {
+	puzzle := Repeat("0", difficulty)
+	for string(b.CalculateHash) != puzzle {
+		b.Nonce += 1
+	}
+	fmt.Println("Block ", b.Hash, " mined with nonce", b.Nonce)
+}
+
 func printBlockInformation(block *Block) {
-	fmt.Printf("\ttime: %s\n", block.timestamp.String())
-	fmt.Printf("\tprevHash: %x\n", block.prevHash)
+	fmt.Printf("\ttime: %s\n", block.Timestamp.String())
+	fmt.Printf("\tprevHash: %x\n", block.PrevHash)
 	fmt.Printf("\thash: %x\n", block.Hash)
 	printTransactions(block)
 }
 
 func printTransactions(block *Block) {
 	fmt.Println("\tTransactions:")
-	for i, transaction := range block.transactions {
-		fmt.Printf("\t\t%v: %s sent %s %v\n", i, transaction.sender, transaction.recipient, transaction.ammount)
+	for i, transaction := range block.Transactions {
+		fmt.Printf("\t\t%v: %s sent %s %v\n", i, transaction.Sender, transaction.Recipient, transaction.Ammount)
 	}
 }
 
 func printBlockChain(chain *BlockChain) {
-	for _, block := range chain.blockChain {
+	for _, block := range chain.BlockChain {
 		printBlockInformation(&block)
 	}
+}
+
+func BlockChainToJSON(chain BlockChain) {
+	file, err := json.MarshalIndent(chain.BlockChain, "", " ")
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(string(file))
+	_ = ioutil.WriteFile("test.json", file, 0644)
 }
 
 func main() {
@@ -92,13 +127,4 @@ func main() {
 	BlockChainToJSON(blockChain)
 	printBlockChain(&blockChain)
 
-}
-
-func BlockChainToJSON(chain BlockChain) {
-	file, err := json.MarshalIndent(chain.blockChain, "", " ")
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(string(file))
-	_ = ioutil.WriteFile("test.json", file, 0644)
 }
