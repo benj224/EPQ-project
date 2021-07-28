@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 	"time"
 )
 
 //TODO:
-//Add a hash calculation function to transaction struct
+//Add a hash calculation function to transaction struct - done
 //Test block hashing and think about multiple nonce possibility
 //Look back at node.go when at home
+//think about when adding new block to json blockchain must have the latest version of the chain idk how that will work
 
 type Block struct {
 	Timestamp    time.Time
@@ -41,12 +43,24 @@ func NewBlock(transactions []Transaction, prevhash []byte) Block {
 		Timestamp:    currentTime,
 		Transactions: transactions,
 		PrevHash:     prevhash,
-		Hash:         NewHash(currentTime, transactions, prevhash),
+		Hash:         NewBlockHash(currentTime, transactions, prevhash),
 		Nonce:        0,
 	}
 }
 
-func NewHash(time time.Time, transactions []Transaction, prevHash []byte) []byte {
+func NewTransaction(sender string, reciever string, ammount float64, signature []byte) Transaction {
+	currentTime := time.Now()
+	return Transaction{
+		Timestamp: currentTime,
+		Sender:    sender,
+		Recipient: reciever,
+		Ammount:   ammount,
+		Hash:      NewTransactionHash(currentTime, sender, reciever, ammount, signature),
+		Signature: []byte("sample"),
+	}
+}
+
+func NewBlockHash(time time.Time, transactions []Transaction, prevHash []byte) []byte {
 	input := append(prevHash, time.String()...)
 	for transaction := range transactions {
 		input = append(input, string(rune(transaction))...)
@@ -55,9 +69,27 @@ func NewHash(time time.Time, transactions []Transaction, prevHash []byte) []byte
 	return hash[:]
 }
 
-func (block Block) CalculateHash() []byte {
-	input := append(block.PrevHash, block.Time.String()...)
-	for transaction := range block.Transactions {
+func NewTransactionHash(time time.Time, sender string, reciever string, ammount float64, signature []byte) []byte {
+	input := append(signature, time.String()...)
+	input = append(input, sender...)
+	input = append(input, reciever...)
+	input = append(input, []byte(fmt.Sprint(ammount))...)
+	hash := sha256.Sum256(input)
+	return hash[:]
+}
+
+// func (block Block) CalculateBlockHash() []byte {
+// 	input := append(block.PrevHash, block.Timestamp.String()...)
+// 	for transaction := range block.Transactions {
+// 		input = append(input, string(rune(transaction))...)
+// 	}
+// 	hash := sha256.Sum256(input)
+// 	return hash[:]
+// }
+
+func CalculateBlockHash(b Block) []byte {
+	input := append(b.PrevHash, b.Timestamp.String()...)
+	for transaction := range b.Transactions {
 		input = append(input, string(rune(transaction))...)
 	}
 	hash := sha256.Sum256(input)
@@ -65,8 +97,8 @@ func (block Block) CalculateHash() []byte {
 }
 
 func (b Block) MineBlock(difficulty int) {
-	puzzle := Repeat("0", difficulty)
-	for string(b.CalculateHash) != puzzle {
+	puzzle := strings.Repeat("0", difficulty)
+	for string(CalculateBlockHash(b)) != puzzle { //idk why CalBlkHash works but CalculateBlockHash doesnt
 		b.Nonce += 1
 	}
 	fmt.Println("Block ", b.Hash, " mined with nonce", b.Nonce)
@@ -103,25 +135,17 @@ func BlockChainToJSON(chain BlockChain) {
 
 func main() {
 
+	SAMPLE_SIGNATURE := []byte("benj224")
+
 	genesisTransactions := []Transaction{
-		{
-			time.Now(),
-			"Genesis",
-			"Reciever",
-			183698258,
-		},
-		{
-			time.Now(),
-			"Genesis",
-			"Reciever2",
-			100,
-		},
+		NewTransaction("Genesis", "Reciever", 1000, SAMPLE_SIGNATURE),
+		NewTransaction("Genesis", "Reciever2", 100, SAMPLE_SIGNATURE),
 	}
 
 	genesisBlock := NewBlock(genesisTransactions, []byte("genesis"))
 
 	blockChain := BlockChain{
-		blockChain: []Block{genesisBlock},
+		BlockChain: []Block{genesisBlock},
 	}
 
 	BlockChainToJSON(blockChain)
