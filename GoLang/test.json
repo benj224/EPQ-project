@@ -1,21 +1,28 @@
-[
- {
-  "timestamp": "2021-07-22T20:51:50.7169585+01:00",
-  "transactions": [
-   {
-    "Timestamp": "2021-07-22T20:51:50.7169585+01:00",
-    "Sender": "Genesis",
-    "Recipient": "Reciever",
-    "Ammount": 183698258
-   },
-   {
-    "Timestamp": "2021-07-22T20:51:50.7169585+01:00",
-    "Sender": "Genesis",
-    "Recipient": "Reciever2",
-    "Ammount": 100
-   }
-  ],
-  "prev_hash": "Z2VuZXNpcw==",
-  "hash": "thKedrqEbuTYArcB9jI/hQhGNo59OP5xrUDtOFQ1TPY="
- }
-]
+{
+ "BlockChain": [
+  {
+   "Timestamp": "2021-08-01T17:13:00.6143097+01:00",
+   "Transactions": [
+    {
+     "Timestamp": "2021-08-01T17:13:00.6128086+01:00",
+     "Sender": "Genesis",
+     "Recipient": "Reciever",
+     "Ammount": 1000,
+     "Hash": "61NTjwZFP3broiZ/rA93I5VVt8EehXdpMRNQ4NQ9oTc=",
+     "Signature": "c2FtcGxl"
+    },
+    {
+     "Timestamp": "2021-08-01T17:13:00.6143097+01:00",
+     "Sender": "Genesis",
+     "Recipient": "Reciever2",
+     "Ammount": 100,
+     "Hash": "R7CANHthAUNv2d9duSq8+lmEH8H1CpF+vpyBtJ61JWc=",
+     "Signature": "c2FtcGxl"
+    }
+   ],
+   "PrevHash": "Z2VuZXNpcw==",
+   "Hash": "BapZfC8ewGmCFAmx7l/xmhhjAHrAUMuKCHA08YUsX00=",
+   "Nonce": 0
+  }
+ ]
+}
