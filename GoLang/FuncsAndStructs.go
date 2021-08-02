@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
-	"os"
 	"strings"
 	"time"
 )
 
+//basic block struct
 type Block struct {
 	Timestamp    time.Time
 	Transactions []Transaction
@@ -20,10 +19,12 @@ type Block struct {
 	Nonce        int64
 }
 
+//BlockChian struct
 type BlockChain struct {
 	BlockChain []Block
 }
 
+//Transaction struct
 type Transaction struct {
 	Timestamp time.Time
 	Sender    string
@@ -33,6 +34,7 @@ type Transaction struct {
 	Signature []byte
 }
 
+//creates a new block
 func NewBlock(transactions []Transaction, prevhash []byte) Block {
 	currentTime := time.Now()
 	return Block{
@@ -44,6 +46,7 @@ func NewBlock(transactions []Transaction, prevhash []byte) Block {
 	}
 }
 
+//creates a new transaction
 func NewTransaction(sender string, reciever string, ammount float64, signature []byte) Transaction {
 	currentTime := time.Now()
 	return Transaction{
@@ -56,6 +59,7 @@ func NewTransaction(sender string, reciever string, ammount float64, signature [
 	}
 }
 
+//creates block hash
 func NewBlockHash(time time.Time, transactions []Transaction, prevHash []byte) []byte {
 	input := append(prevHash, time.String()...)
 	for transaction := range transactions {
@@ -65,6 +69,7 @@ func NewBlockHash(time time.Time, transactions []Transaction, prevHash []byte) [
 	return hash[:]
 }
 
+//calculates transaction hash
 func NewTransactionHash(time time.Time, sender string, reciever string, ammount float64, signature []byte) []byte {
 	input := append(signature, time.String()...)
 	input = append(input, sender...)
@@ -83,6 +88,7 @@ func NewTransactionHash(time time.Time, sender string, reciever string, ammount 
 // 	return hash[:]
 // }
 
+//calculates a block hash
 func CalculateBlockHash(b Block) []byte {
 	input := append(b.PrevHash, b.Timestamp.String()...)
 	for transaction := range b.Transactions {
@@ -92,6 +98,7 @@ func CalculateBlockHash(b Block) []byte {
 	return hash[:]
 }
 
+//mines a block
 func (b Block) MineBlock(difficulty int) {
 	puzzle := strings.Repeat("0", difficulty)
 	for string(CalculateBlockHash(b)) != puzzle { //idk why CalBlkHash works but CalculateBlockHash doesnt
@@ -100,6 +107,7 @@ func (b Block) MineBlock(difficulty int) {
 	fmt.Println("Block ", b.Hash, " mined with nonce", b.Nonce)
 }
 
+//prints block info to terminal
 func printBlockInformation(block *Block) {
 	fmt.Printf("\ttime: %s\n", block.Timestamp.String())
 	fmt.Printf("\tprevHash: %x\n", block.PrevHash)
@@ -107,6 +115,7 @@ func printBlockInformation(block *Block) {
 	printTransactions(block)
 }
 
+//prints transaction to terminal
 func printTransactions(block *Block) {
 	fmt.Println("\tTransactions:")
 	for i, transaction := range block.Transactions {
@@ -114,12 +123,14 @@ func printTransactions(block *Block) {
 	}
 }
 
+//prints blockchain info to terminal
 func printBlockChain(chain *BlockChain) {
 	for _, block := range chain.BlockChain {
 		printBlockInformation(&block)
 	}
 }
 
+//converts blockchain to JSON
 func BlockChainToJSON(chain BlockChain) {
 	file, err := json.MarshalIndent(chain, "", " ")
 	if err != nil {
@@ -127,11 +138,4 @@ func BlockChainToJSON(chain BlockChain) {
 	}
 	fmt.Println(string(file))
 	_ = ioutil.WriteFile("test.json", file, 0644)
-}
-
-func ReturnJSON(w http.ResponseWriter, r *http.Request) {
-	jsonFile, _ := os.Open("test.json")
-	byteJSON, _ := ioutil.ReadAll(jsonFile)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(byteJSON)
 }
