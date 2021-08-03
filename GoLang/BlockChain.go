@@ -28,7 +28,6 @@ func main() {
 
 	//write block to JSON and console
 	BlockChainToJSON(blockChain)
-	printBlockChain(&blockChain)
 
 	fmt.Println("added genesis")
 	fmt.Scanln() //wait for input
@@ -45,5 +44,8 @@ func main() {
 
 	//write to JSON and console
 	BlockChainToJSON(blockChain)
-	printBlockChain(&blockChain)
+
+	newChain := GetJSON("localhost:8080")
+	printBlockChain(&newChain)
+
 }

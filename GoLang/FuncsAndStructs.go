@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -138,4 +139,41 @@ func BlockChainToJSON(chain BlockChain) {
 	}
 	fmt.Println(string(file))
 	_ = ioutil.WriteFile("test.json", file, 0644)
+}
+
+//gets blockchain from given url -- probably change this to single block in future
+func GetJSON(url string) BlockChain {
+	spaceClient := http.Client{
+		Timeout: time.Second * 2,
+	}
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.Header.Set("User-Agent", "test")
+
+	res, getErr := spaceClient.Do(req)
+	if getErr != nil {
+		log.Fatal(getErr)
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	nuBlock := BlockChain{}
+	jsonErr := json.Unmarshal(body, &nuBlock)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+
+	return nuBlock
+
 }
