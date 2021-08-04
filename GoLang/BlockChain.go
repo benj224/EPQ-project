@@ -45,7 +45,7 @@ func main() {
 	//write to JSON and console
 	BlockChainToJSON(blockChain)
 
-	newChain := GetJSON("localhost:8080")
+	newChain := GetJSON("http://api.open-notify.org/astros.json")
 	printBlockChain(&newChain)
 
 }
